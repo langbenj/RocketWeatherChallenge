@@ -39,3 +39,4 @@ Delivery
 - Used the Android Studio template for an UI with a viewpager. Generally I'd code this myself but the requirements were clear 
 about keeping things simple. Take a look at my Guild Ball app for how I'd implement it (it's in the Player Info segment)
 - uses-permission android:name=android.permission.INTERNET was needed in the manifest
+- Using Otto library for bus communication. I find the throw/catch way of communication more flexable and easier to debug then using interfaces. 
