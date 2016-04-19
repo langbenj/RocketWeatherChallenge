@@ -94,7 +94,7 @@ public class WeatherJSONReader extends AsyncTask<String,Integer,ArrayList<String
             offset = 1;
         }
         else {
-            offset = 0;
+            offset = 0; 
         }
         for (int x = 0; x < 5; x++) {
             result_list.add("High: \n" + temperatures.get((x * 2) + offset) + "\n\n" +
