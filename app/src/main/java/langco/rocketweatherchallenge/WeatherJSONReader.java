@@ -112,7 +112,5 @@ public class WeatherJSONReader extends AsyncTask<String,Integer,ArrayList<String
 
 
     protected void onPostExecute(ArrayList<String> result) {
-        int x=0;
-
     }
 }
