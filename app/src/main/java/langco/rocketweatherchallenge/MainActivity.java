@@ -30,16 +30,13 @@ public class MainActivity extends AppCompatActivity {
 
     private String default_url_to_pass = "http://forecast.weather.gov/MapClick.php?lat=41.885575&lon=-87.644408&FcstType=json";
     private static ArrayList<String> output_array = new ArrayList<String>(asList("", "", "", "", ""));
-    private static final int REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         //Network queries to determine the location or return to the default if needed.
-
         LocationManager location_manager = (LocationManager) getSystemService(LOCATION_SERVICE);
         //Check to see if the user has disabled their location services for this app.
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -62,11 +59,15 @@ public class MainActivity extends AppCompatActivity {
                 float longitude = (float) (location.getLongitude());
                 default_url_to_pass = "http://forecast.weather.gov/MapClick.php?lat=" + latitude + "&lon=" + longitude + "&FcstType=json";
             } else {
+                //Can be triggered on the desktop Android Studio where there isn't a network to pull from.
                 Toast.makeText(getApplicationContext(), "Problem with loading location", Toast.LENGTH_SHORT).show();
             }
         }
+
         //Register on the OTTO bus
         App.bus.register(this);
+
+        //Call JSON reader to load data and launch the views once complete
         new WeatherJSONReader().execute(default_url_to_pass);
     }
 
@@ -84,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         ViewPager mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
+        //Set up the top tabs
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
     }
@@ -91,18 +93,17 @@ public class MainActivity extends AppCompatActivity {
     public static class PlaceholderFragment extends Fragment {
 
         //Variable that specifies the view page you are currently on.
-        private static final String ARG_SECTION_NUMBER = "section_number";
         private static int section_number;
 
         public PlaceholderFragment() {
         }
 
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
+        //Returns a new instance of this fragment for the given section
+        //number.
+
         public static PlaceholderFragment newInstance(int sectionNumber) {
             PlaceholderFragment fragment = new PlaceholderFragment();
+            //Pass the contents of the view along
             Bundle args = new Bundle();
             args.putString("item_text", output_array.get(section_number));
             section_number=sectionNumber;
@@ -114,16 +115,13 @@ public class MainActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            //Set the contents of the view
             TextView textView = (TextView) rootView.findViewById(R.id.display);
             textView.setText(getArguments().getString("item_text"));
             return rootView;
         }
     }
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -162,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public String return_date (int offset, String format) {
+            //Generates a properly formatted String of the date for display
             Calendar todays_date = Calendar.getInstance();
             todays_date.add(Calendar.DATE,offset);
             SimpleDateFormat formatted_date=new SimpleDateFormat(format);

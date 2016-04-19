@@ -1,11 +1,9 @@
 package langco.rocketweatherchallenge;
 
 import android.os.AsyncTask;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,11 +12,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
+
 
 
 //Data is read in an AsyncTask thread to prevent freezes and other errors.
@@ -113,6 +108,7 @@ public class WeatherJSONReader extends AsyncTask<String,Integer,ArrayList<String
 
     protected void onPostExecute(ArrayList<String> result) {
         //Registers this class into the Otto Library's bus
+        //Otto is used to communicate between Fragments and Activities.
         App.bus.register(this);
         App.bus.post(new BusEventHandler(result));
     }
