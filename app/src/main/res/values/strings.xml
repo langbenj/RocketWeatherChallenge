@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Rocket Weather Challenge</string>
+        <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="temp_title">Temperature:</string>
+    <string name="desc_title">Description:</string>
+</resources>
