@@ -1,6 +1,12 @@
 package langco.rocketweatherchallenge;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.support.v4.app.Fragment;
@@ -9,24 +15,22 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.squareup.otto.Subscribe;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
+
 import static java.util.Arrays.asList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String default_url_to_pass="http://forecast.weather.gov/MapClick.php?lat=41.885575&lon=-87.644408&FcstType=json";
-    private static ArrayList<String> output_array= new ArrayList<String>(asList("","","","",""));
-
+    private String default_url_to_pass = "http://forecast.weather.gov/MapClick.php?lat=41.885575&lon=-87.644408&FcstType=json";
+    private static ArrayList<String> output_array = new ArrayList<String>(asList("", "", "", "", ""));
+    private static final int REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +38,33 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
+        //Network queries to determine the location or return to the default if needed.
 
+        LocationManager location_manager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        //Check to see if the user has disabled their location services for this app.
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            } else {
+                //If permissions are shut off ask for them to be turned back on each time they are accessed.
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        1);
+            }
+        }
+        else {
+
+            //Pull the location object from the Network Provider. I decided not to use the GPS because of the notes regarding low cell
+            //signal on Lower Wacker Drive. Network Provider has a better chance of pulling the data in that case.
+            Location location = location_manager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            //Check one last time to make sure the data is good. If not the default location will stay.
+            if (location != null) {
+                float latitude = (float) (location.getLatitude());
+                float longitude = (float) (location.getLongitude());
+                default_url_to_pass = "http://forecast.weather.gov/MapClick.php?lat=" + latitude + "&lon=" + longitude + "&FcstType=json";
+            } else {
+                Toast.makeText(getApplicationContext(), "Problem with loading location", Toast.LENGTH_SHORT).show();
+            }
+        }
         //Register on the OTTO bus
         App.bus.register(this);
         new WeatherJSONReader().execute(default_url_to_pass);
@@ -57,30 +87,6 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
     }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
 
     public static class PlaceholderFragment extends Fragment {
 
@@ -139,17 +145,18 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
+            //Display the top tabs
             switch (position) {
                 case 0:
-                    return return_date(0,"MM/dd/yy");
+                    return return_date(0,"MM/dd");
                 case 1:
-                    return return_date(1,"MM/dd/yy");
+                    return return_date(1,"MM/dd");
                 case 2:
-                    return return_date(2,"MM/dd/yy");
+                    return return_date(2,"MM/dd");
                 case 3:
-                    return return_date(3,"MM/dd/yy");
+                    return return_date(3,"MM/dd");
                 case 4:
-                    return return_date(4,"MM/dd/yy");
+                    return return_date(4,"MM/dd");
             }
             return null;
         }
