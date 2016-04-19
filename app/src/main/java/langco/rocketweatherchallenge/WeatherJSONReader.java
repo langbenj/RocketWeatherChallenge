@@ -102,8 +102,8 @@ public class WeatherJSONReader extends AsyncTask<String,Integer,ArrayList<String
             offset = 0;
         }
         for (int x = 0; x < 5; x++) {
-            result_list.add("High: " + temperatures.get((x * 2) + offset) + "\n" +
-                    "Description: " + descriptions.get((x * 2) + offset));
+            result_list.add("High: \n" + temperatures.get((x * 2) + offset) + "\n" +
+                    "Description: \n" + descriptions.get((x * 2) + offset));
             }
 
         //Return the results
@@ -112,5 +112,8 @@ public class WeatherJSONReader extends AsyncTask<String,Integer,ArrayList<String
 
 
     protected void onPostExecute(ArrayList<String> result) {
+        //Registers this class into the Otto Library's bus
+        App.bus.register(this);
+        App.bus.post(new BusEventHandler(result));
     }
 }

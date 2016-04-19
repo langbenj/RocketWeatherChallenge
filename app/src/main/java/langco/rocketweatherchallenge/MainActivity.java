@@ -3,7 +3,6 @@ package langco.rocketweatherchallenge;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -14,23 +13,37 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.TextView;
-
+import com.squareup.otto.Subscribe;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import static java.util.Arrays.asList;
 
 public class MainActivity extends AppCompatActivity {
 
     private String default_url_to_pass="http://forecast.weather.gov/MapClick.php?lat=41.885575&lon=-87.644408&FcstType=json";
+    private static ArrayList<String> output_array= new ArrayList<String>(asList("","","","",""));
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
+        //Register on the OTTO bus
+        App.bus.register(this);
+        new WeatherJSONReader().execute(default_url_to_pass);
+    }
+
+    //Using the Otto library to pass items across a bus. Implemented in App
+    @Subscribe
+    public void catchJSONReadCompletion(BusEventHandler event) {
+        output_array=event.getParameter();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the three
@@ -43,12 +56,6 @@ public class MainActivity extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
-        new WeatherJSONReader().execute(default_url_to_pass);
-
-
-
-
     }
 
 
@@ -79,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Variable that specifies the view page you are currently on.
         private static final String ARG_SECTION_NUMBER = "section_number";
+        private static int section_number;
 
         public PlaceholderFragment() {
         }
@@ -90,7 +98,8 @@ public class MainActivity extends AppCompatActivity {
         public static PlaceholderFragment newInstance(int sectionNumber) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            args.putString("item_text", output_array.get(section_number));
+            section_number=sectionNumber;
             fragment.setArguments(args);
             return fragment;
         }
@@ -100,15 +109,8 @@ public class MainActivity extends AppCompatActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             TextView textView = (TextView) rootView.findViewById(R.id.display);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+            textView.setText(getArguments().getString("item_text"));
             return rootView;
-        }
-
-        public String[] getTemperature() throws IOException {
-
-
-            return null;
-
         }
     }
 
