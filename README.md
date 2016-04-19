@@ -38,3 +38,4 @@ Delivery
 - The API is delivers the data differently if you are viewing it between 8AM and 6PM or later. Needed to include cases to handle it
 - Used the Android Studio template for an UI with a viewpager. Generally I'd code this myself but the requirements were clear 
 about keeping things simple. Take a look at my Guild Ball app for how I'd implement it (it's in the Player Info segment)
+-  <uses-permission android:name="android.permission.INTERNET"/> Was needed in the manifest
