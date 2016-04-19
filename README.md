@@ -39,5 +39,7 @@ Delivery
 - Used the Android Studio template for an UI with a viewpager. Generally I'd code this myself but the requirements were clear 
 about keeping things simple. Take a look at my Guild Ball app for how I'd implement it (it's in the Player Info segment)
 - uses-permission android:name=android.permission.INTERNET was needed in the manifest to allow the JSON read
-- uses-permission android:name=android.permission.ACCESS_FINE_LOCATION was needed to turn on GPS access by default
+- uses-permission android:name=android.permission.ACCESS_FINE_LOCATION was needed to turn on GPS access by default in older versions of the OS. 
 - Using Otto library for bus communication. I find the throw/catch way of communication more flexable and easier to debug then using interfaces. 
+- Used NETWORK_PROVIDER instead of GPS_PROVIDER. This should work better on Lower Wacker as stated in the requirements. 
+- The positional info will overwrite the default URL if it is present, otherwise 60661 will be used. 
