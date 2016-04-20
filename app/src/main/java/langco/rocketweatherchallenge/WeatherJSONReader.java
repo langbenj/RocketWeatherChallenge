@@ -60,6 +60,7 @@ public class WeatherJSONReader extends AsyncTask<String,Integer,ArrayList<String
         ArrayList<String> temperatures= new ArrayList<>();
         ArrayList<String> descriptions= new ArrayList<>();
         String start_period="Tonight";
+        String current_temp="";
         try {
             JSONObject full_json_object = new JSONObject(return_value);
             //Generate data arrays for temperatures and descriptions
@@ -79,24 +80,31 @@ public class WeatherJSONReader extends AsyncTask<String,Integer,ArrayList<String
             JSONArray day_array = time_object.getJSONArray("startPeriodName");
             start_period = day_array.getString(0);
 
+            //Grab the temperature for right now to display on the first view
+            JSONObject current_temp_object = full_json_object.getJSONObject("currentobservation");
+            current_temp = current_temp_object.getString("Temp");
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         // The feed changes based on the time of day. If it's between 5:00 AM and 6:00 PM the
-        // first value in the returned data is today. Otherwise it's tonight. This throws off
+        // first value in the returned data is today. Otherwise it's tonight or overnight. This throws off
         // all of the calculations unless I check for it. Sneaky.
 
         //This is where we generate the strings that will be used to fill the views in the viewpager
         ArrayList<String> result_list= new ArrayList<>();
         int offset;
-        if (start_period.equals("Tonight")) {
-            offset = 1;
+        if (start_period.equals("Tonight") || start_period.equals("Overnight")) {
+            offset = -1;
         }
         else {
-            offset = 0; 
+            offset = 0;
         }
-        for (int x = 0; x < 5; x++) {
+        result_list.add("Temperature: \n" + current_temp + "\n\n" +
+                "Description: \n" + descriptions.get(0));
+
+        for (int x = 1; x < 5; x++) {
             result_list.add("High: \n" + temperatures.get((x * 2) + offset) + "\n\n" +
                     "Description: \n" + descriptions.get((x * 2) + offset));
             }
